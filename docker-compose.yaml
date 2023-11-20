@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB=${MONGODB_DB}
+      - UVICORN_CMD="uvicorn main:app --host 0.0.0.0 --port 8000"
+
+  emqx-broker:
+    image: emqx/emqx
+    ports:
+      - "1883:1883"
+      - "8083:8083"
+
+  consumer-service:
+    build:
+      context: .
+      dockerfile: Dockerfile-consumer
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
+      - MONGODB_DB=${MONGODB_DB}
+      - BROKER_HOST=emqx-broker
+      - BROKER_PORT=1883
+      - TOPIC=water-level
+    depends_on:
+      - emqx-broker

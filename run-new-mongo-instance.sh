@@ -1,0 +1,1 @@
+docker run -v ./db:/data/db --name tesa-2023 -p 27017:27017 -d mongo:latest
